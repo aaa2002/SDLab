@@ -2,6 +2,8 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from .models import User, Role, Project
 from django.views.decorators.csrf import csrf_exempt  
+import json
+
 
 @csrf_exempt
 def get_all_users(request):
@@ -25,18 +27,26 @@ def get_all_users(request):
 @csrf_exempt
 def create_project(request):
     if request.method == 'POST':
-        # Get user email from request data
-        user_email = request.POST.get('user_email')
+        rq = json.loads(request.body.decode('utf-8'))
 
-        print(user_email)
+        print(rq, "\n\n")
 
+
+        user_email = rq['user_email']
+        project_name = rq['name']
+        project_description = rq['description']
+
+        print (user_email)
+        print (project_name)
         try:
             # Get the user object with the provided email
-            user = User.objects.get(email=user_email)
+            user = User.objects.get(id=user_email)
             
+            # Check if project_name is not None
+            if project_name is None:
+                return JsonResponse({'success': False, 'message': 'Project name is required.'}, status=400)
+
             # Create the project
-            project_name = request.POST.get('name')
-            project_description = request.POST.get('description')
             project = Project.objects.create(name=project_name, description=project_description, user=user)
             
             return JsonResponse({'success': True, 'message': 'Project created successfully.'})
