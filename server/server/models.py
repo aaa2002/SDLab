@@ -19,7 +19,9 @@ class User(models.Model):
 
 class Project(models.Model):
     name = models.CharField(max_length=255)
-    description = models.TextField()
+    description = models.TextField()   
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
+
 
     def __str__(self):
         return self.name
